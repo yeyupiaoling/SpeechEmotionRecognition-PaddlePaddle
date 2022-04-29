@@ -4,6 +4,8 @@ import sys
 import warnings
 from datetime import datetime
 
+from data_utils.utils import ext_features
+
 warnings.filterwarnings("ignore")
 
 import librosa
@@ -43,13 +45,16 @@ def load_audio(audio_path, feature_method='melspectrogram', mode='train', sr=160
     if feature_method == 'melspectrogram':
         # 计算梅尔频谱
         features = librosa.feature.melspectrogram(y=wav, sr=sr, n_fft=400, n_mels=80, hop_length=160, win_length=400)
+        features = librosa.power_to_db(features, ref=1.0, amin=1e-10, top_db=None)
     elif feature_method == 'spectrogram':
         # 计算声谱图
         linear = librosa.stft(wav, n_fft=400, win_length=400, hop_length=160)
         features, _ = librosa.magphase(linear)
+        features = librosa.power_to_db(features, ref=1.0, amin=1e-10, top_db=None)
+    elif feature_method == 'ext_features':
+        features = ext_features(X=wav, sample_rate=sr)
     else:
         raise Exception(f'预处理方法 {feature_method} 不存在！')
-    features = librosa.power_to_db(features, ref=1.0, amin=1e-10, top_db=None)
     # 数据增强
     if mode == 'train' and augmentors is not None:
         for key, augmentor in augmentors.items():
@@ -97,6 +102,8 @@ class CustomDataset(Dataset):
             return 80
         elif self.feature_method == 'spectrogram':
             return 201
+        elif self.feature_method == 'ext_features':
+            return 1
         else:
             raise Exception(f'预处理方法 {self.feature_method} 不存在！')
 

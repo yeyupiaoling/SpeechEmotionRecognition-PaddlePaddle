@@ -54,7 +54,6 @@ def main():
     for audio in tqdm(audios):
         audio_path = os.path.join(args.audio_dir, audio)
         label = infer(audio_path)
-        print(f'音频：{audio} 的预测结果标签为：{label}')
         f_result.write(f'{audio}, {label}\n')
     f.close()
 

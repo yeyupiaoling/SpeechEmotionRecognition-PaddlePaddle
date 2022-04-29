@@ -36,7 +36,7 @@ add_arg('save_model_dir',   str,    'output/models/',         '模型保存的�
 add_arg('feature_method',   str,    'melspectrogram',         '音频特征提取方法', choices=['melspectrogram', 'spectrogram'])
 add_arg('augment_conf_path',str,    'configs/augment.yml',    '数据增强的配置文件，为json格式')
 add_arg('resume',           str,    None,                     '恢复训练的模型文件夹，当为None则不使用恢复模型')
-add_arg('pretrained_model', str,    'pretrained',                     '预训练模型的模型文件夹，当为None则不使用预训练模型')
+add_arg('pretrained_model', str,    None,                     '预训练模型的模型文件夹，当为None则不使用预训练模型')
 args = parser.parse_args()
 
 
@@ -217,10 +217,9 @@ def train():
             writer.add_scalar('Train/Learning rate', scheduler.last_lr, epoch)
             test_step += 1
             # 保存模型
-            save_path = os.path.join(args.save_model_dir, args.use_model)
-            os.makedirs(save_path, exist_ok=True)
-            paddle.save(model.state_dict(), os.path.join(save_path, 'model.pdparams'))
-            paddle.save(optimizer.state_dict(), os.path.join(save_path, 'optimizer.pdopt'))
+            os.makedirs(args.save_model_dir, exist_ok=True)
+            paddle.save(model.state_dict(), os.path.join(args.save_model_dir, 'model.pdparams'))
+            paddle.save(optimizer.state_dict(), os.path.join(args.save_model_dir, 'optimizer.pdopt'))
         scheduler.step()
 
 
