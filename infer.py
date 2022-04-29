@@ -49,7 +49,7 @@ def infer(audio_path):
 
 
 def main():
-    f_result = open('output/submission.csv', 'w', encoding='utf-8')
+    f_result = open(f'{os.path.dirname(os.path.dirname(args.model_path))}/submission.csv', 'w', encoding='utf-8')
     audios = os.listdir(args.audio_dir)
     for audio in tqdm(audios):
         audio_path = os.path.join(args.audio_dir, audio)
