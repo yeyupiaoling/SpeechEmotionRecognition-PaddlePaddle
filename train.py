@@ -12,7 +12,6 @@ from visualdl import LogWriter
 
 from data_utils.noise_perturb import NoisePerturbAugmentor
 from data_utils.reader import CustomDataset
-from data_utils.spec_augment import SpecAugmentor
 from data_utils.speed_perturb import SpeedPerturbAugmentor
 from data_utils.volume_perturb import VolumePerturbAugmentor
 from modules.model import Model
@@ -22,14 +21,14 @@ parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 add_arg('batch_size',       int,    32,                       '训练的批量大小')
 add_arg('num_workers',      int,    8,                        '读取数据的线程数量')
-add_arg('num_epoch',        int,    100,                       '训练的轮数')
+add_arg('num_epoch',        int,    300,                       '训练的轮数')
 add_arg('num_class',        int,    6,                        '分类的类别数量')
 add_arg('learning_rate',    float,  1e-3,                     '初始学习率的大小')
 add_arg('train_list_path',  str,    'dataset/train_list.txt', '训练数据的数据列表路径')
-add_arg('test_list_path',   str,    'dataset/train_list.txt', '测试数据的数据列表路径')
+add_arg('test_list_path',   str,    'dataset/test_list.txt',  '测试数据的数据列表路径')
 add_arg('scaler_path',      str,    'dataset/standard.m',     '测试数据的数据列表路径')
 add_arg('save_model_dir',   str,    'output/models/',         '模型保存的路径')
-add_arg('augment_conf_path',str,    None,    '数据增强的配置文件，为json格式')
+add_arg('augment_conf_path',str,    'configs/augment.yml',    '数据增强的配置文件，为json格式')
 add_arg('resume',           str,    None,                     '恢复训练的模型文件夹，当为None则不使用恢复模型')
 add_arg('pretrained_model', str,    None,                     '预训练模型的模型文件夹，当为None则不使用预训练模型')
 args = parser.parse_args()
@@ -63,7 +62,6 @@ def train():
         augmentors['noise'] = NoisePerturbAugmentor(**configs['noise'])
         augmentors['speed'] = SpeedPerturbAugmentor(**configs['speed'])
         augmentors['volume'] = VolumePerturbAugmentor(**configs['volume'])
-        # augmentors['specaug'] = SpecAugmentor(**configs['specaug'])
     # 获取数据
     train_dataset = CustomDataset(args.train_list_path,
                                   scaler_path=args.scaler_path,

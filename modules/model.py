@@ -1,15 +1,14 @@
-import paddle
 import paddle.nn as nn
 
 
 class Model(nn.Layer):
     def __init__(self, num_class):
-        super(Model, self).__init__()
-        self.fc0 = nn.Linear(in_features=312, out_features=256)
-        self.lstm = nn.LSTM(input_size=256, hidden_size=256, direction='forward')
+        super().__init__()
+        self.fc0 = nn.Linear(in_features=312, out_features=512)
+        self.lstm = nn.LSTM(input_size=512, hidden_size=256, direction='bidirect')
         self.tanh = nn.Tanh()
         self.dropout = nn.Dropout(p=0.5)
-        self.fc1 = nn.Linear(in_features=256, out_features=256)
+        self.fc1 = nn.Linear(in_features=512, out_features=256)
         self.relu1 = nn.ReLU()
         self.fc2 = nn.Linear(in_features=256, out_features=num_class)
 

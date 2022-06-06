@@ -44,11 +44,6 @@ def load_audio(audio_path, mode='train', sr=16000, chunk_duration=3, augmentors=
             wav = wav[:num_chunk_samples]
     # 获取音频特征
     features = audio_features(X=wav, sample_rate=sr)
-    # 数据增强
-    if mode == 'train' and augmentors is not None:
-        for key, augmentor in augmentors.items():
-            if key == 'specaug':
-                features = augmentor(features)
     return features
 
 
