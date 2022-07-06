@@ -25,6 +25,7 @@ def get_data_list(audio_path, list_path):
                 f_test.write('%s\t%d\n' % (sound_path, i))
             else:
                 f_train.write('%s\t%d\n' % (sound_path, i))
+            sound_sum += 1
     f_label.close()
     f_train.close()
 
@@ -42,5 +43,5 @@ def create_standard(list_path, scaler_path):
 
 
 if __name__ == '__main__':
-    get_data_list('dataset/Data_MGTV', 'dataset')
+    get_data_list('dataset/audios', 'dataset')
     create_standard('dataset', 'dataset/standard.m')

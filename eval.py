@@ -1,7 +1,6 @@
 import argparse
 import functools
 
-import numpy as np
 import paddle
 from paddle.io import DataLoader
 from paddle.metric import accuracy
@@ -43,6 +42,7 @@ def evaluate():
     # 加载模型
     model.set_state_dict(paddle.load(args.model_path))
     model.eval()
+    print('开始评估...')
     # 开始评估
     accuracies, preds, labels = [], [], []
     for batch_id, (audio, label) in enumerate(eval_loader()):
@@ -58,16 +58,7 @@ def evaluate():
         accuracies.append(acc.numpy()[0])
     acc = float(sum(accuracies) / len(accuracies))
     cm = confusion_matrix(labels, preds)
-    FP = cm.sum(axis=0) - np.diag(cm)
-    FN = cm.sum(axis=1) - np.diag(cm)
-    TP = np.diag(cm)
-    TN = cm.sum() - (FP + FN + TP)
-    # 精确率
-    precision = TP / (TP + FP + 1e-6)
-    # 召回率
-    recall = TP / (TP + FN + 1e-6)
-    f1_score = (2 * precision * recall) / (precision + recall)
-    print('分类准确率: {:.4f}, F1-Score:: {:.4f}'.format(acc, np.mean(f1_score)))
+    print('分类准确率: {:.4f}'.format(acc))
     plot_confusion_matrix(cm=cm, save_path='output/log/混淆矩阵_eval.png', class_labels=class_labels, show=False)
 
 
