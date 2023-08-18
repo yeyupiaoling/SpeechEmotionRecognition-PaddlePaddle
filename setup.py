@@ -19,7 +19,7 @@ def parse_requirements():
 
 if __name__ == "__main__":
     setup(
-        name='mser',
+        name='ppser',
         packages=find_packages(),
         author='yeyupiaoling',
         version=VERSION,
@@ -29,7 +29,7 @@ if __name__ == "__main__":
         long_description_content_type='text/markdown',
         url='https://github.com/yeyupiaoling/SpeechEmotionRecognition-PaddlePaddle',
         download_url='https://github.com/yeyupiaoling/SpeechEmotionRecognition-PaddlePaddle.git',
-        keywords=['audio', 'pytorch', 'emotion'],
+        keywords=['audio', 'paddlepaddle', 'emotion'],
         classifiers=[
             'Intended Audience :: Developers',
             'License :: OSI Approved :: Apache Software License',
