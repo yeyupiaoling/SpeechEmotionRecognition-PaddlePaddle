@@ -24,6 +24,9 @@
 |:-----------------:|:---------:|:-----:|:-------:|:----:|:-------:|
 | BidirectionalLSTM |    1.8    | Flank | RAVDESS |  8   | 0.95193 |
 
+说明：
+1. RAVDESS数据集只使用`Audio_Speech_Actors_01-24.zip`
+
 ## 安装环境
 
  - 首先安装的是PaddlePaddle的GPU版本，如果已经安装过了，请跳过。
@@ -47,20 +50,15 @@ python setup.py install
 
 ## 准备数据
 
-生成数据列表，用于下一步的读取需要，项目默认提供一个数据集[RAVDESS](https://zenodo.org/record/1188976/files/Audio_Speech_Actors_01-24.zip?download=1)
-，下载这个数据集并解压到`dataset`目录下。
+生成数据列表，用于下一步的读取需要，项目默认提供一个数据集[RAVDESS](https://zenodo.org/record/1188976/files/Audio_Speech_Actors_01-24.zip?download=1)，下载这个数据集并解压到`dataset`目录下。
 
-然后执行`create_data.py`里面的`create_ravdess_list('dataset/Audio_Speech_Actors_01-24', 'dataset')`
-函数即可生成数据列表，同时也生成归一化文件，具体看代码。
+生成数据列表，用于下一步的读取需要，项目默认提供一个数据集[RAVDESS](https://zenodo.org/record/1188976/files/Audio_Speech_Actors_01-24.zip?download=1)，这个数据集的[介绍页面](https://zenodo.org/record/1188976#.XsAXemgzaUk)，这个数据包含中性、平静、快乐、悲伤、愤怒、恐惧、厌恶、惊讶八种情感，本项目只使用里面的`Audio_Speech_Actors_01-24.zip`，数据集，说话的语句只有`Kids are talking by the door`和`Dogs are sitting by the door`，可以说这个训练集是非常简单的。下载这个数据集并解压到`dataset`目录下。
 
 ```shell
 python create_data.py
 ```
 
-如果自定义数据集，可以按照下面格式，`audio_path`为音频文件路径，用户需要提前把音频数据集存放在`dataset/audio`
-目录下，每个文件夹存放一个类别的音频数据，每条音频数据长度在3秒左右，如 `dataset/audio/angry/······`。`audio`
-是数据列表存放的位置，生成的数据类别的格式为 `音频路径\t音频对应的类别标签`，音频路径和标签用制表符 `\t`
-分开。读者也可以根据自己存放数据的方式修改以下函数。
+如果自定义数据集，可以按照下面格式，`audio_path`为音频文件路径，用户需要提前把音频数据集存放在`dataset/audio`目录下，每个文件夹存放一个类别的音频数据，每条音频数据长度在3秒左右，如 `dataset/audio/angry/······`。`audio`是数据列表存放的位置，生成的数据类别的格式为 `音频路径\t音频对应的类别标签`，音频路径和标签用制表符 `\t`分开。读者也可以根据自己存放数据的方式修改以下函数。
 
 执行`create_data.py`里面的`get_data_list('dataset/audios', 'dataset')`函数即可生成数据列表，同时也生成归一化文件，具体看代码。
 
