@@ -15,4 +15,4 @@ visualdl>=2.2.3
 pyyaml>=5.4.1
 scikit-learn>=1.0.2
 av>=10.0.0
-joblib
+joblib>=1.2.0
