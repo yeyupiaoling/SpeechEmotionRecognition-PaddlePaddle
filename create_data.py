@@ -1,6 +1,6 @@
 import os
 
-from mser.trainer import MSERTrainer
+from ppser.trainer import PPSERTrainer
 
 
 # 生成数据列表
@@ -57,7 +57,7 @@ def create_ravdess_list(audio_dir, list_path):
 
 # 生成归一化文件
 def create_standard(config_file):
-    trainer = MSERTrainer(configs=config_file)
+    trainer = PPSERTrainer(configs=config_file)
     trainer.get_standard_file()
 
 
