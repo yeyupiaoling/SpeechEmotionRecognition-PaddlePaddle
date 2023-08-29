@@ -218,7 +218,7 @@ class PPSERTrainer(object):
             self.optimizer.set_state_dict(paddle.load(os.path.join(resume_model, 'optimizer.pdopt')))
             # 自动混合精度参数
             if self.amp_scaler is not None and os.path.exists(os.path.join(resume_model, 'scaler.pdparams')):
-                self.amp_scaler.set_state_dict(paddle.load(os.path.join(resume_model, 'scaler.pdparams')))
+                self.amp_scaler.load_state_dict(paddle.load(os.path.join(resume_model, 'scaler.pdparams')))
             with open(os.path.join(resume_model, 'model.state'), 'r', encoding='utf-8') as f:
                 json_data = json.load(f)
                 last_epoch = json_data['last_epoch'] - 1
@@ -316,7 +316,7 @@ class PPSERTrainer(object):
                 # 记录学习率
                 writer.add_scalar('Train/lr', self.scheduler.get_lr(), self.train_step)
                 self.train_step += 1
-                train_times = []
+                train_times, accuracies, loss_sum = [], [], []
             self.scheduler.step()
             start = time.time()
 
