@@ -147,7 +147,9 @@ class PPSERTrainer(object):
         summary(self.model, (1, self.test_dataset.audio_featurizer.feature_dim))
         # print(self.model)
         # 获取损失函数
-        self.loss = paddle.nn.CrossEntropyLoss()
+        weight = paddle.to_tensor(self.configs.train_conf.loss_weight, dtype=paddle.float32) \
+            if self.configs.train_conf.loss_weight is not None else None
+        self.loss = paddle.nn.CrossEntropyLoss(weight=weight)
         if is_train:
             if self.configs.train_conf.enable_amp:
                 # 自动混合精度训练，逻辑2，定义GradScaler
