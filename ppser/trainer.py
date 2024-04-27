@@ -73,8 +73,6 @@ class PPSERTrainer(object):
         self.stop_train, self.stop_eval = False, False
 
     def __setup_dataloader(self, is_train=False):
-        self.audio_featurizer = AudioFeaturizer(feature_method=self.configs.preprocess_conf.feature_method,
-                                                method_args=self.configs.preprocess_conf.get('method_args', {}))
         if is_train:
             self.train_dataset = CustomDataset(data_list_path=self.configs.dataset_conf.train_list,
                                                audio_featurizer=self.audio_featurizer,
@@ -117,11 +115,9 @@ class PPSERTrainer(object):
 
     # 获取用于归一化的文件
     def get_standard_file(self):
-        audio_featurizer = AudioFeaturizer(feature_method=self.configs.preprocess_conf.feature_method,
-                                           method_args=self.configs.preprocess_conf.get('method_args', {}))
         # 获取测试数据
         test_dataset = CustomDataset(data_list_path=self.configs.dataset_conf.train_list,
-                                     audio_featurizer=audio_featurizer,
+                                     audio_featurizer=self.audio_featurizer,
                                      do_vad=self.configs.dataset_conf.do_vad,
                                      max_duration=self.configs.dataset_conf.eval_conf.max_duration,
                                      min_duration=self.configs.dataset_conf.min_duration,
@@ -140,13 +136,11 @@ class PPSERTrainer(object):
     # 提取特征保存文件
     def extract_features(self, save_dir='dataset/features'):
         os.makedirs(save_dir, exist_ok=True)
-        audio_featurizer = AudioFeaturizer(feature_method=self.configs.preprocess_conf.feature_method,
-                                           method_args=self.configs.preprocess_conf.get('method_args', {}))
         for i, data_list in enumerate([self.configs.dataset_conf.train_list, self.configs.dataset_conf.test_list]):
             max_duration = self.configs.dataset_conf.max_duration if i == 0 else self.configs.dataset_conf.eval_conf.max_duration
             # 获取测试数据
             test_dataset = CustomDataset(data_list_path=data_list,
-                                         audio_featurizer=audio_featurizer,
+                                         audio_featurizer=self.audio_featurizer,
                                          do_vad=self.configs.dataset_conf.do_vad,
                                          max_duration=max_duration,
                                          min_duration=self.configs.dataset_conf.min_duration,
