@@ -6,6 +6,7 @@ import time
 from datetime import timedelta
 
 import joblib
+import numpy as np
 import paddle
 import yaml
 from paddle import summary
@@ -121,7 +122,6 @@ class PPSERTrainer(object):
         # 获取测试数据
         test_dataset = CustomDataset(data_list_path=self.configs.dataset_conf.train_list,
                                      audio_featurizer=audio_featurizer,
-                                     scaler_path=self.configs.dataset_conf.scaler_path,
                                      do_vad=self.configs.dataset_conf.do_vad,
                                      max_duration=self.configs.dataset_conf.eval_conf.max_duration,
                                      min_duration=self.configs.dataset_conf.min_duration,
@@ -136,6 +136,33 @@ class PPSERTrainer(object):
         scaler = StandardScaler().fit(data)
         joblib.dump(scaler, self.configs.dataset_conf.scaler_path)
         logger.info(f'归一化文件保存在：{self.configs.dataset_conf.scaler_path}')
+
+    # 提取特征保存文件
+    def extract_features(self, save_dir='dataset/features'):
+        os.makedirs(save_dir, exist_ok=True)
+        audio_featurizer = AudioFeaturizer(feature_method=self.configs.preprocess_conf.feature_method,
+                                           method_args=self.configs.preprocess_conf.get('method_args', {}))
+        for i, data_list in enumerate([self.configs.dataset_conf.train_list, self.configs.dataset_conf.test_list]):
+            max_duration = self.configs.dataset_conf.max_duration if i == 0 else self.configs.dataset_conf.eval_conf.max_duration
+            # 获取测试数据
+            test_dataset = CustomDataset(data_list_path=data_list,
+                                         audio_featurizer=audio_featurizer,
+                                         do_vad=self.configs.dataset_conf.do_vad,
+                                         max_duration=max_duration,
+                                         min_duration=self.configs.dataset_conf.min_duration,
+                                         sample_rate=self.configs.dataset_conf.sample_rate,
+                                         use_dB_normalization=self.configs.dataset_conf.use_dB_normalization,
+                                         target_dB=self.configs.dataset_conf.target_dB,
+                                         mode='create_data')
+            save_data_list = data_list.replace('.txt', '_features.txt')
+            with open(save_data_list, 'w', encoding='utf-8') as f:
+                for i in tqdm(range(len(test_dataset))):
+                    feature, label = test_dataset[i]
+                    label = int(label)
+                    save_path = os.path.join(save_dir, f'{int(time.time() * 1000)}.npy')
+                    np.save(save_path, feature)
+                    f.write(f'{save_path}\t{label}\n')
+            logger.info(f'{data_list}列表中的数据已提取特征完成，新列表为：{save_data_list}')
 
     def __setup_model(self, input_size, is_train=False):
         # 自动获取列表数量
