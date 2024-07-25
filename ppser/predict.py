@@ -9,7 +9,7 @@ import yaml
 from ppser import SUPPORT_MODEL
 from ppser.data_utils.audio import AudioSegment
 from ppser.data_utils.featurizer import AudioFeaturizer
-from ppser.models.bidirectional_lstm import BidirectionalLSTM
+from ppser.models import build_model
 from ppser.utils.logger import setup_logger
 from ppser.utils.utils import dict_to_object, print_arguments
 
@@ -39,7 +39,7 @@ class PPSERPredictor:
                 configs = yaml.load(f.read(), Loader=yaml.FullLoader)
             print_arguments(configs=configs)
         self.configs = dict_to_object(configs)
-        assert self.configs.use_model in SUPPORT_MODEL, f'没有该模型：{self.configs.use_model}'
+        assert self.configs.model_conf.model in SUPPORT_MODEL, f'没有该模型：{self.configs.model_conf.model}'
         # 获取特征提取器
         self._audio_featurizer = AudioFeaturizer(feature_method=self.configs.preprocess_conf.feature_method,
                                                 method_args=self.configs.preprocess_conf.get('method_args', {}))
@@ -48,13 +48,10 @@ class PPSERPredictor:
             lines = f.readlines()
         self.class_labels = [l.replace('\n', '') for l in lines]
         # 自动获取列表数量
-        if self.configs.model_conf.num_class is None:
-            self.configs.model_conf.num_class = len(self.class_labels)
+        if self.configs.model_conf.model_args.get('num_class', None) is None:
+            self.configs.model_conf.model_args.num_class = len(self.class_labels)
         # 获取模型
-        if self.configs.use_model == 'BidirectionalLSTM':
-            self.predictor = BidirectionalLSTM(input_size=self._audio_featurizer.feature_dim, **self.configs.model_conf)
-        else:
-            raise Exception(f'{self.configs.use_model} 模型不存在！')
+        self.predictor = build_model(input_size=self._audio_featurizer.feature_dim, configs=self.configs)
         # 加载模型
         if os.path.isdir(model_path):
             model_path = os.path.join(model_path, 'model.pdparams')
@@ -63,7 +60,7 @@ class PPSERPredictor:
         print(f"成功加载模型参数：{model_path}")
         self.predictor.eval()
         # 加载归一化文件
-        self.scaler = joblib.load(self.configs.dataset_conf.scaler_path)
+        self.scaler = joblib.load(self.configs.dataset_conf.dataset.scaler_path)
 
     def _load_audio(self, audio_data, sample_rate=16000):
         """加载音频
@@ -83,11 +80,13 @@ class PPSERPredictor:
         else:
             raise Exception(f'不支持该数据类型，当前数据类型为：{type(audio_data)}')
         # 重采样
-        if audio_segment.sample_rate != self.configs.dataset_conf.sample_rate:
-            audio_segment.resample(self.configs.dataset_conf.sample_rate)
+        if audio_segment.sample_rate != self.configs.dataset_conf.dataset.sample_rate:
+            audio_segment.resample(self.configs.dataset_conf.dataset.sample_rate)
         # decibel normalization
-        if self.configs.dataset_conf.use_dB_normalization:
-            audio_segment.normalize(target_db=self.configs.dataset_conf.target_dB)
+        if self.configs.dataset_conf.dataset.use_dB_normalization:
+            audio_segment.normalize(target_db=self.configs.dataset_conf.dataset.target_dB)
+        assert audio_segment.duration >= self.configs.dataset_conf.dataset.min_duration, \
+            f'音频太短，最小应该为{self.configs.dataset_conf.dataset.min_duration}s，当前音频为{audio_segment.duration}s'
         # 获取特征
         feature = self._audio_featurizer(audio_segment.samples, sample_rate=audio_segment.sample_rate)
         # 归一化

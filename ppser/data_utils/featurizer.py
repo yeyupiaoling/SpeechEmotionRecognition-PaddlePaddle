@@ -11,13 +11,13 @@ class AudioFeaturizer(object):
     :type method_args: dict
     """
 
-    def __init__(self, feature_method='MelSpectrogram', method_args={}):
+    def __init__(self, feature_method='CustomFeature', method_args={}):
         super().__init__()
         self._method_args = method_args
         self._feature_method = feature_method
 
     def __call__(self, x, sample_rate: float) -> np.ndarray:
-        if self._feature_method == 'CustomFeatures':
+        if self._feature_method == 'CustomFeature':
             return self.custom_features(x, sample_rate)
         else:
             raise Exception(f'预处理方法 {self._feature_method} 不存在!')
