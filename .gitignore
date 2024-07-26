@@ -3,7 +3,8 @@ __pycache__/
 build/
 dist/
 ppser.egg-info/
-dataset/
+dataset/*
+!dataset/test.wav
 log/
 output/
 models/
