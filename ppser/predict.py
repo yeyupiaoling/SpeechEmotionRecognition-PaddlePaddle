@@ -6,7 +6,6 @@ import numpy as np
 import paddle
 import yaml
 
-from ppser import SUPPORT_MODEL
 from ppser.data_utils.audio import AudioSegment
 from ppser.data_utils.featurizer import AudioFeaturizer
 from ppser.models import build_model
@@ -39,7 +38,6 @@ class PPSERPredictor:
                 configs = yaml.load(f.read(), Loader=yaml.FullLoader)
             print_arguments(configs=configs)
         self.configs = dict_to_object(configs)
-        assert self.configs.model_conf.model in SUPPORT_MODEL, f'没有该模型：{self.configs.model_conf.model}'
         # 获取特征提取器
         self._audio_featurizer = AudioFeaturizer(feature_method=self.configs.preprocess_conf.feature_method,
                                                 method_args=self.configs.preprocess_conf.get('method_args', {}))

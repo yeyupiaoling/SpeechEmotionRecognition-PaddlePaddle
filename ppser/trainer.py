@@ -16,7 +16,6 @@ from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 from visualdl import LogWriter
 
-from ppser import SUPPORT_MODEL
 from ppser.data_utils.collate_fn import collate_fn
 from ppser.data_utils.featurizer import AudioFeaturizer
 from ppser.data_utils.reader import CustomDataset
@@ -49,7 +48,6 @@ class PPSERTrainer(object):
                 configs = yaml.load(f.read(), Loader=yaml.FullLoader)
             print_arguments(configs=configs)
         self.configs = dict_to_object(configs)
-        assert self.configs.model_conf.model in SUPPORT_MODEL, f'没有该模型：{self.configs.model_conf.model}'
         self.model = None
         self.optimizer = None
         self.scheduler = None
