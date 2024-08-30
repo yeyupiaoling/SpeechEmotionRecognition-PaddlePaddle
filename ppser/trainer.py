@@ -16,24 +16,23 @@ from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 from visualdl import LogWriter
 
+from loguru import logger
 from ppser.data_utils.collate_fn import collate_fn
 from ppser.data_utils.featurizer import AudioFeaturizer
 from ppser.data_utils.reader import CustomDataset
 from ppser.models import build_model
 from ppser.optimizer import build_lr_scheduler, build_optimizer
 from ppser.utils.checkpoint import load_pretrained, load_checkpoint, save_checkpoint
-from ppser.utils.logger import setup_logger
 from ppser.utils.utils import dict_to_object, plot_confusion_matrix, print_arguments
-
-logger = setup_logger(__name__)
 
 
 class PPSERTrainer(object):
-    def __init__(self, configs, use_gpu=True):
+    def __init__(self, configs, use_gpu=True, data_augment_configs=None):
         """ ppser集成工具类
 
         :param configs: 配置字典
         :param use_gpu: 是否使用GPU训练模型
+        :param data_augment_configs: 数据增强配置字典或者其文件路径
         """
         if use_gpu:
             assert paddle.is_compiled_with_cuda(), 'GPU不可用'
@@ -57,6 +56,12 @@ class PPSERTrainer(object):
         self.test_dataset = None
         self.test_loader = None
         self.amp_scaler = None
+        # 读取数据增强配置文件
+        if isinstance(data_augment_configs, str):
+            with open(data_augment_configs, 'r', encoding='utf-8') as f:
+                data_augment_configs = yaml.load(f.read(), Loader=yaml.FullLoader)
+            print_arguments(configs=data_augment_configs, title='数据增强配置')
+        self.data_augment_configs = dict_to_object(data_augment_configs)
         # 获取分类标签
         with open(self.configs.dataset_conf.label_list_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
@@ -82,6 +87,7 @@ class PPSERTrainer(object):
         if is_train:
             self.train_dataset = CustomDataset(data_list_path=self.configs.dataset_conf.train_list,
                                                audio_featurizer=self.audio_featurizer,
+                                               aug_conf=self.data_augment_configs,
                                                mode='train',
                                                **dataset_args)
             # 设置支持多卡训练

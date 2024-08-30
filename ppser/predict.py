@@ -6,13 +6,11 @@ import numpy as np
 import paddle
 import yaml
 
-from ppser.data_utils.audio import AudioSegment
+from loguru import logger
+from yeaudio.audio import AudioSegment
 from ppser.data_utils.featurizer import AudioFeaturizer
 from ppser.models import build_model
-from ppser.utils.logger import setup_logger
 from ppser.utils.utils import dict_to_object, print_arguments
-
-logger = setup_logger(__name__)
 
 
 class PPSERPredictor:
@@ -55,7 +53,7 @@ class PPSERPredictor:
             model_path = os.path.join(model_path, 'model.pdparams')
         assert os.path.exists(model_path), f"{model_path} 模型不存在！"
         self.predictor.set_state_dict(paddle.load(model_path))
-        print(f"成功加载模型参数：{model_path}")
+        logger.info(f"成功加载模型参数：{model_path}")
         self.predictor.eval()
         # 加载归一化文件
         self.scaler = joblib.load(self.configs.dataset_conf.dataset.scaler_path)

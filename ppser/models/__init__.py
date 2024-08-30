@@ -1,9 +1,7 @@
 import importlib
 
+from loguru import logger
 from .bi_lstm import BiLSTM
-from ppser.utils.logger import setup_logger
-
-logger = setup_logger(__name__)
 
 __all__ = ['build_model']
 
