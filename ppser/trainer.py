@@ -2,6 +2,7 @@ import os
 import platform
 import sys
 import time
+import uuid
 from datetime import timedelta
 
 import joblib
@@ -191,7 +192,7 @@ class PPSERTrainer(object):
                 for i in tqdm(range(len(test_dataset))):
                     feature, label = test_dataset[i]
                     label = int(label)
-                    save_path = os.path.join(save_dir, f'{int(time.time() * 1000)}.npy')
+                    save_path = os.path.join(save_dir, f'{str(uuid.uuid4())}.npy')
                     np.save(save_path, feature)
                     f.write(f'{save_path}\t{label}\n')
             logger.info(f'{data_list}列表中的数据已提取特征完成，新列表为：{save_data_list}')
